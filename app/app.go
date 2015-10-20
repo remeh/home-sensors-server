@@ -6,18 +6,27 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/remeh/home-sensors-server/db"
+
 	"github.com/gorilla/mux"
 )
 
 type App struct {
-	Config Config
-	router *mux.Router
+	Config  Config
+	Storage db.Storage
+	router  *mux.Router
 }
 
 func NewApp() *App {
 	app := &App{}
 	app.router = mux.NewRouter()
 	app.Config = ReadConfig()
+
+	_, err := app.Storage.Init(app.Config.Conn)
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
+
 	return app
 }
 

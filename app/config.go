@@ -10,12 +10,11 @@ type Config struct {
 	Addr      string `envconfig:"ADDR,default=:9000,optional"`
 	Key       string `envconfig:"KEY,optional"`
 	PublicDir string `envconfig:"DIR,default=public/,optional"`
+	Conn      string `envconfig:"CONN,default=host=/var/run/postgresql sslmode=disable user=hss dbname=hss`
 }
 
 func ReadConfig() Config {
 	var conf Config
-	// NOTE(remy): don't read the error because it'll
-	// fallback on default values on error
 	envconfig.Init(&conf)
 	return conf
 }
