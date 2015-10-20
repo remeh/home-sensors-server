@@ -23,6 +23,7 @@ type SensorValueDAO struct {
 
 	findLast *sql.Stmt
 	insert   *sql.Stmt
+	inc      *sql.Stmt
 }
 
 type SensorValue struct {

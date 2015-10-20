@@ -3,6 +3,7 @@
 package main
 
 import (
+	. "github.com/remeh/home-sensors-server/api"
 	. "github.com/remeh/home-sensors-server/app"
 )
 
@@ -13,4 +14,5 @@ func main() {
 }
 
 func declareRoutes(app *App) {
+	app.Add("/api/hit/{sensor}/{type}", KeyHandler{app, SensorHit{app}}, "POST")
 }
