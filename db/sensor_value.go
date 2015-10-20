@@ -15,7 +15,7 @@ type SensorValueDAO struct {
 
 const (
 	TEMP_FIELDS = `
-		"sensor_value"."id",
+		"sensor_value"."sensor_id",
 		"sensor_value"."type",
 		"sensor_value"."time",
 		"sensor_value"."value"
@@ -23,10 +23,10 @@ const (
 )
 
 type SensorValue struct {
-	Id    string
-	Type  string
-	Time  time.Time
-	Value float32
+	SensorId string
+	Type     string
+	Time     time.Time
+	Value    float64
 }
 
 func NewSensorValueDAO(db *sql.DB) (*SensorValueDAO, error) {
@@ -47,21 +47,21 @@ func (d *SensorValueDAO) initStmt() error {
 
 // sensorValueFromRow reads an parking model from the current row.
 func sensorValueFromRow(rows *sql.Rows) (SensorValue, error) {
-	var id,
+	var sensorId,
 		typ string
 	var t time.Time
-	var value float32
+	var value float64
 
 	err := rows.Scan(
-		&id,
+		&sensorId,
 		&typ,
 		&t,
 		&value)
 
 	return SensorValue{
-		Id:    id,
-		Type:  typ,
-		Time:  t,
-		Value: value,
+		SensorId: sensorId,
+		Type:     typ,
+		Time:     t,
+		Value:    value,
 	}, err
 }
