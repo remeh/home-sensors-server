@@ -10,7 +10,7 @@ type Config struct {
 	Addr      string `envconfig:"ADDR,default=:9000,optional"`
 	Key       string `envconfig:"KEY,optional"`
 	PublicDir string `envconfig:"DIR,default=public/,optional"`
-	Conn      string `envconfig:"CONN,default=host=/var/run/postgresql sslmode=disable user=hss dbname=hss`
+	Conn      string `envconfig:"CONN,default=host=/var/run/postgresql sslmode=disable user=hss dbname=hss password=hss,optional"`
 }
 
 func ReadConfig() Config {

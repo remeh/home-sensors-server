@@ -9,10 +9,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type SensorValueDAO struct {
-	db *sql.DB
-}
-
 const (
 	TEMP_FIELDS = `
 		"sensor_value"."sensor_id",
@@ -21,6 +17,13 @@ const (
 		"sensor_value"."value"
 	`
 )
+
+type SensorValueDAO struct {
+	db *sql.DB
+
+	findLast *sql.Stmt
+	insert   *sql.Stmt
+}
 
 type SensorValue struct {
 	SensorId string
@@ -40,9 +43,64 @@ func NewSensorValueDAO(db *sql.DB) (*SensorValueDAO, error) {
 func (d *SensorValueDAO) initStmt() error {
 	var err error
 
-	// TODO(remy)
+	if d.findLast, err = d.db.Prepare(`
+		SELECT ` +
+		TEMP_FIELDS + `
+		FROM "sensor_value"
+		WHERE
+			"sensor_value"."sensor_id" = $1
+			AND
+			"sensor_value"."type" = $2
+		ORDER BY "sensor_value"."time" DESC
+		LIMIT 1
+	`); err != nil {
+		return err
+	}
 
-	return err
+	if d.insert, err = d.db.Prepare(`
+		INSERT INTO
+		"sensor_value"
+		(` + insertFields("sensor_value", TEMP_FIELDS) + `)
+		VALUES
+		($1, $2, $3, $4)
+	`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *SensorValueDAO) Insert(sensorValue SensorValue) (sql.Result, error) {
+	return d.insert.Exec(
+		sensorValue.SensorId,
+		sensorValue.Type,
+		sensorValue.Time,
+		sensorValue.Value,
+	)
+}
+
+func (d *SensorValueDAO) FindLast(sensorId string, typ string) (SensorValue, error) {
+	return ReadSensorValueAndReturn(d.findLast.Query(sensorId, typ))
+}
+
+func ReadSensorValueAndReturn(rows *sql.Rows, err error) (SensorValue, error) {
+	var rv SensorValue
+
+	if err != nil {
+		return rv, err
+	}
+
+	if rows == nil {
+		return rv, nil
+	}
+
+	defer rows.Close()
+
+	if rows.Next() {
+		rv, err = sensorValueFromRow(rows)
+	}
+
+	return rv, err
 }
 
 // sensorValueFromRow reads an parking model from the current row.
