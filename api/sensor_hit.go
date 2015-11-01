@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	. "github.com/remeh/home-sensors-server/app"
@@ -59,14 +58,14 @@ func (c SensorHit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// store the values
 
-	for _, v := range body.Values {
-		f, err := strconv.ParseFloat(v.Value, 64)
-		if err != nil {
-			w.WriteHeader(500)
-			log.Println("err:", err)
-			return
-		}
+	f, err := strconv.ParseFloat(v.Value, 64)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Println("err:", err)
+		return
+	}
 
+	for _, v := range body.Values {
 		err = service.StoreSensorValue(c.App, sensorId, v.Type, time.Now(), f)
 		if err != nil {
 			w.WriteHeader(500)
