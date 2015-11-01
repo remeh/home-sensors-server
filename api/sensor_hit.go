@@ -21,8 +21,8 @@ type SensorHit struct {
 
 type sensorHitBody struct {
 	Values []struct {
-		Type  string  `json:"type"`
-		Value float64 `json:"value"`
+		Type  string `json:"type"`
+		Value string `json:"value"`
 	} `json:"values"`
 }
 
@@ -58,8 +58,15 @@ func (c SensorHit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// store the values
 
+	f, err := strconv.ParseFloat(v.Value, 64)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Println("err:", err)
+		return
+	}
+
 	for _, v := range body.Values {
-		err = service.StoreSensorValue(c.App, sensorId, v.Type, time.Now(), v.Value)
+		err = service.StoreSensorValue(c.App, sensorId, v.Type, time.Now(), f)
 		if err != nil {
 			w.WriteHeader(500)
 			log.Println("err: ", err)
