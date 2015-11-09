@@ -15,4 +15,5 @@ func main() {
 
 func declareRoutes(app *App) {
 	app.Add("/api/hit/{sensor}", KeyHandler{app, SensorHit{app}}, "POST")
+	app.Add("/api/graph/{type}.json", KeyHandler{app, GetGraph{app}}, "GET")
 }

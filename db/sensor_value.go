@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	TEMP_FIELDS = `
+	SENSOR_VALUE_FIELDS = `
 		"sensor_value"."sensor_id",
 		"sensor_value"."type",
 		"sensor_value"."time",
@@ -21,9 +21,9 @@ const (
 type SensorValueDAO struct {
 	db *sql.DB
 
-	findLast *sql.Stmt
-	insert   *sql.Stmt
-	inc      *sql.Stmt
+	findLast  *sql.Stmt
+	findRange *sql.Stmt
+	insert    *sql.Stmt
 }
 
 type SensorValue struct {
@@ -44,9 +44,24 @@ func NewSensorValueDAO(db *sql.DB) (*SensorValueDAO, error) {
 func (d *SensorValueDAO) initStmt() error {
 	var err error
 
+	if d.findRange, err = d.db.Prepare(`
+		SELECT ` +
+		SENSOR_VALUE_FIELDS + `
+		FROM "sensor_value"
+		WHERE
+			"sensor_value"."time" >= $1
+			AND
+			"sensor_value"."time" <= $2
+			AND
+			"sensor_value"."type" = $3
+		ORDER BY "sensor_value"."time"
+	`); err != nil {
+		return err
+	}
+
 	if d.findLast, err = d.db.Prepare(`
 		SELECT ` +
-		TEMP_FIELDS + `
+		SENSOR_VALUE_FIELDS + `
 		FROM "sensor_value"
 		WHERE
 			"sensor_value"."sensor_id" = $1
@@ -61,7 +76,7 @@ func (d *SensorValueDAO) initStmt() error {
 	if d.insert, err = d.db.Prepare(`
 		INSERT INTO
 		"sensor_value"
-		(` + insertFields("sensor_value", TEMP_FIELDS) + `)
+		(` + insertFields("sensor_value", SENSOR_VALUE_FIELDS) + `)
 		VALUES
 		($1, $2, $3, $4)
 	`); err != nil {
@@ -78,6 +93,10 @@ func (d *SensorValueDAO) Insert(sensorValue SensorValue) (sql.Result, error) {
 		sensorValue.Time,
 		sensorValue.Value,
 	)
+}
+
+func (d *SensorValueDAO) FindRange(start, end time.Time, typ string) ([]SensorValue, error) {
+	return readValues(d.findRange.Query(start, end, typ))
 }
 
 func (d *SensorValueDAO) FindLast(sensorId string, typ string) (SensorValue, error) {
@@ -102,6 +121,26 @@ func ReadSensorValueAndReturn(rows *sql.Rows, err error) (SensorValue, error) {
 	}
 
 	return rv, err
+}
+
+func readValues(rows *sql.Rows, err error) ([]SensorValue, error) {
+	rv := make([]SensorValue, 0)
+	if rows == nil {
+		return rv, nil
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var v SensorValue
+		var err error
+		if v, err = sensorValueFromRow(rows); err != nil {
+			return rv, err
+		}
+		rv = append(rv, v)
+	}
+
+	return rv, nil
 }
 
 // sensorValueFromRow reads an parking model from the current row.
