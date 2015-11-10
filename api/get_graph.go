@@ -61,6 +61,8 @@ func (c GetGraph) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	values, err := service.GetValuesRange(c.App, start, end, typ)
 	if err != nil {
 		log.Println("error: while getting values range:", err.Error())
+		w.WriteHeader(500)
+		return
 	}
 
 	// render the data
@@ -77,7 +79,7 @@ func (c GetGraph) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	data, err := json.Marshal(resp)
 	if err != nil {
-		log.Printf("error: while marshaling the GetGraph response: %v", err)
+		log.Println("error: while marshaling the GetGraph response:", err.Error())
 		w.WriteHeader(500)
 		return
 	}
