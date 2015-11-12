@@ -12,6 +12,7 @@ type Storage struct {
 	Conn *sql.DB
 
 	SensorValueDAO *SensorValueDAO
+	SystemEventDAO *SystemEventDAO
 }
 
 // Init opens a PostgreSQL connection with the given connectionString.
@@ -34,6 +35,9 @@ func (s *Storage) Init(connectionString string) (*sql.DB, error) {
 func (s *Storage) createDAOs() error {
 	var err error
 	if s.SensorValueDAO, err = NewSensorValueDAO(s.Conn); err != nil {
+		return err
+	}
+	if s.SystemEventDAO, err = NewSystemEventDAO(s.Conn); err != nil {
 		return err
 	}
 	return nil
