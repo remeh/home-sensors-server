@@ -10,7 +10,7 @@ import (
 	. "github.com/remeh/home-sensors-server/db"
 )
 
-func StoreSensorValue(app *App, sensorId, typ string, t time.Time, value float64) error {
+func StoreSensorValue(app *App, sensorId, typ string, t time.Time, value float64, ip string) error {
 	dao := app.Storage.SensorValueDAO
 	last, err := dao.FindLast(sensorId, typ)
 	if err != nil {
@@ -27,6 +27,7 @@ func StoreSensorValue(app *App, sensorId, typ string, t time.Time, value float64
 		Type:     typ,
 		Time:     t,
 		Value:    value,
+		Ip:       ip,
 	})
 	return err
 }

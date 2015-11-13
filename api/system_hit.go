@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 
 	. "github.com/remeh/home-sensors-server/app"
@@ -42,10 +43,15 @@ func (c SystemHit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// store the event
 
-	err = service.StoreSystemEvent(c.App, body.System, body.Message)
+	err = service.StoreSystemEvent(c.App, body.System, body.Message, extractIp(r))
 	if err != nil {
 		w.WriteHeader(500)
 		log.Println("err: ", err)
 		return
 	}
+}
+
+func extractIp(r *http.Request) string {
+	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+	return ip
 }

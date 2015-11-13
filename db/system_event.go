@@ -13,7 +13,8 @@ const (
 	SYSTEM_EVENT_FIELDS = `
 		"system_event"."system_id",
 		"system_event"."time",
-		"system_event"."message"
+		"system_event"."message",
+		"system_event"."ip"
 	`
 )
 
@@ -27,6 +28,7 @@ type SystemEvent struct {
 	SystemId string
 	Time     time.Time
 	Message  string
+	Ip       string
 }
 
 func NewSystemEventDAO(db *sql.DB) (*SystemEventDAO, error) {
@@ -45,7 +47,7 @@ func (d *SystemEventDAO) initStmt() error {
 		"system_event"
 		(` + insertFields("system_event", SYSTEM_EVENT_FIELDS) + `)
 		VALUES
-		($1, $2, $3)
+		($1, $2, $3, $4)
 	`); err != nil {
 		return err
 	}
@@ -58,5 +60,6 @@ func (d *SystemEventDAO) Insert(systemEvent SystemEvent) (sql.Result, error) {
 		systemEvent.SystemId,
 		systemEvent.Time,
 		systemEvent.Message,
+		systemEvent.Ip,
 	)
 }

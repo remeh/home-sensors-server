@@ -59,7 +59,7 @@ func (c SensorHit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// store the values
 
 	for _, v := range body.Values {
-		err = service.StoreSensorValue(c.App, sensorId, v.Type, time.Now(), v.Value)
+		err = service.StoreSensorValue(c.App, sensorId, v.Type, time.Now(), v.Value, extractIp(r))
 		if err != nil {
 			w.WriteHeader(500)
 			log.Println("err: ", err)

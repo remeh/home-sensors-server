@@ -31,6 +31,7 @@ type SensorValue struct {
 	Type     string
 	Time     time.Time
 	Value    float64
+	Ip       string
 }
 
 func NewSensorValueDAO(db *sql.DB) (*SensorValueDAO, error) {
@@ -78,7 +79,7 @@ func (d *SensorValueDAO) initStmt() error {
 		"sensor_value"
 		(` + insertFields("sensor_value", SENSOR_VALUE_FIELDS) + `)
 		VALUES
-		($1, $2, $3, $4)
+		($1, $2, $3, $4, $5)
 	`); err != nil {
 		return err
 	}
@@ -92,6 +93,7 @@ func (d *SensorValueDAO) Insert(sensorValue SensorValue) (sql.Result, error) {
 		sensorValue.Type,
 		sensorValue.Time,
 		sensorValue.Value,
+		sensorValue.Ip,
 	)
 }
 

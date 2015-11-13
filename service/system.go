@@ -9,12 +9,13 @@ import (
 	. "github.com/remeh/home-sensors-server/db"
 )
 
-func StoreSystemEvent(app *App, systemId, message string) error {
+func StoreSystemEvent(app *App, systemId, message, ip string) error {
 	dao := app.Storage.SystemEventDAO
 	_, err := dao.Insert(SystemEvent{
 		SystemId: systemId,
 		Time:     time.Now(),
 		Message:  message,
+		Ip:       ip,
 	})
 	return err
 }
