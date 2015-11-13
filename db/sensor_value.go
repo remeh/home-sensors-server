@@ -14,7 +14,8 @@ const (
 		"sensor_value"."sensor_id",
 		"sensor_value"."type",
 		"sensor_value"."time",
-		"sensor_value"."value"
+		"sensor_value"."value",
+		"sensor_value"."ip"
 	`
 )
 
@@ -148,6 +149,7 @@ func readValues(rows *sql.Rows, err error) ([]SensorValue, error) {
 // sensorValueFromRow reads an parking model from the current row.
 func sensorValueFromRow(rows *sql.Rows) (SensorValue, error) {
 	var sensorId,
+		ip,
 		typ string
 	var t time.Time
 	var value float64
@@ -156,12 +158,14 @@ func sensorValueFromRow(rows *sql.Rows) (SensorValue, error) {
 		&sensorId,
 		&typ,
 		&t,
-		&value)
+		&value,
+		&ip)
 
 	return SensorValue{
 		SensorId: sensorId,
 		Type:     typ,
 		Time:     t,
 		Value:    value,
+		Ip:       ip,
 	}, err
 }
