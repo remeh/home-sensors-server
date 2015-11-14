@@ -21,5 +21,8 @@ func (c KeyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// NOTE(remy): not the best practice.
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	c.Handler.ServeHTTP(w, r)
 }
